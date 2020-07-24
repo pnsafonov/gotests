@@ -72,6 +72,13 @@ func doCallMsg5(c pb.Service1Client, ctx context.Context) {
         for i := 0; i < len(msg0Out.Names); i++ {
             log.Printf("name = %s\n", msg0Out.Names[i])
         }
+
+        for i := 0; i < len(msg0Out.Messages4); i++ {
+            for k, v := range msg0Out.Messages4 {
+                log.Printf("k = %v, v = %v\n", k, v)
+            }
+        }
+
     }
 }
 

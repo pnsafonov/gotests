@@ -89,5 +89,36 @@ func (srv *Server) DoCallMsg5(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg5, err
         msgOut.Names = append(msgOut.Names, name)
     }
 
+    for i := 0; i < int(msg0.Id1); i++ {
+        msg1 := new(pb.Msg1)
+        msg1.Id1 = msg0.Id1 * 1
+        msg1.Id2 = msg0.Id1 * 1
+        msg1.Msg1 = fmt.Sprintf("msg1_%d", i)
+        msg1.Msg2 = fmt.Sprintf("msg2_%d", i)
+
+        msgOut.Messages1 = append(msgOut.Messages1, msg1)
+    }
+
+    msgOut.Messages4 = make(map[string]*pb.Msg4)
+    for i := 0; i < int(msg0.Id1); i++ {
+        key := fmt.Sprintf("key_%d", i)
+        msg4 := new(pb.Msg4)
+        msg4.Id1 = msg0.Id1 * 4
+
+        msg1Out := new(pb.Msg1)
+        msg1Out.Id1 = msg0.Id1 * 1
+        msg1Out.Id2 = msg0.Id1 * 1
+        msg1Out.Msg1 = fmt.Sprintf("msg1_%d", i)
+        msg1Out.Msg2 = fmt.Sprintf("msg2_%d", i)
+
+        msg3Out := new(pb.Msg3)
+        msg3Out.Id1 = msg0.Id1 * 3
+        msg3Out.Msg1 = msg1Out
+
+        msg4.Msg3 = msg3Out
+
+        msgOut.Messages4[key] = msg4
+    }
+
     return msgOut, nil
 }

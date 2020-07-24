@@ -3,6 +3,7 @@ syntax = "proto3";
 package pb;
 option go_package = ".;pb";
 
+
 message Msg0 {
     int64 id1 = 1;
 }
@@ -32,6 +33,8 @@ message Msg4 {
 message Msg5 {
     int64 id1 = 1;
     repeated string names = 2;
+    repeated Msg1 messages1 = 3;
+    map<string, Msg4> messages4 = 4;
 }
 
 
