@@ -35,6 +35,8 @@ message Msg5 {
     repeated string names = 2;
     repeated Msg1 messages1 = 3;
     map<string, Msg4> messages4 = 4;
+    repeated Msg3 messages3 = 5;
+    map<string, Msg2> messages2 = 6;
 }
 
 

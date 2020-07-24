@@ -83,6 +83,8 @@ func (srv *Server) DoCallMsg5(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg5, err
 
     msgOut := new(pb.Msg5)
     msgOut.Id1 = msg0.Id1 * 5
+    msgOut.Messages3 = make([]*pb.Msg3, 0, 18)
+    msgOut.Messages2 = make(map[string]*pb.Msg2)
 
     for i := 0; i < int(msg0.Id1); i++ {
         name := fmt.Sprintf("name_%d", i)
