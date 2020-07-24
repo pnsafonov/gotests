@@ -58,6 +58,23 @@ func doCallMsg4(c pb.Service1Client, ctx context.Context) {
     }
 }
 
+func doCallMsg5(c pb.Service1Client, ctx context.Context) {
+    for i := 0; i < 10; i++ {
+        msg0In := new(pb.Msg0)
+        msg0In.Id1 = int64(i)
+        msg0Out, err := c.DoCallMsg5(ctx, msg0In)
+        if err != nil {
+            log.Printf("err = %v", err)
+            continue
+        }
+
+        log.Printf("msg5 id = %d\n", msg0Out.Id1)
+        for i := 0; i < len(msg0Out.Names); i++ {
+            log.Printf("name = %s\n", msg0Out.Names[i])
+        }
+    }
+}
+
 func main() {
     cliConn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
     if err != nil {
@@ -71,7 +88,8 @@ func main() {
 
     //doCall1(c, ctx)
     //doCallMsg1(c, ctx)
-    doCallMsg4(c, ctx)
+    //doCallMsg4(c, ctx)
+    doCallMsg5(c, ctx)
 
     log.Println("done")
 }

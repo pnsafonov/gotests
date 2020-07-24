@@ -19,6 +19,7 @@ func (srv *Server) DoCall1(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg0, error)
     msgOut.Id1 = msg0.Id1 * 1
     return msgOut, nil
 }
+
 func (srv *Server) DoCallMsg1(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg1, error) {
     log.Printf("DoCallMsg1 msg0.Id1 = %d", msg0.Id1)
 
@@ -29,6 +30,7 @@ func (srv *Server) DoCallMsg1(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg1, err
     msgOut.Msg2 = "msg2"
     return msgOut, nil
 }
+
 func (srv *Server) DoCallMsg2(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg2, error) {
     log.Printf("DoCallMsg2 msg0.Id1 = %d", msg0.Id1)
 
@@ -37,6 +39,7 @@ func (srv *Server) DoCallMsg2(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg2, err
     msgOut.Msg = "msg"
     return msgOut, nil
 }
+
 func (srv *Server) DoCallMsg3(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg3, error) {
     log.Printf("DoCallMsg3 msg0.Id1 = %d", msg0.Id1)
 
@@ -53,6 +56,7 @@ func (srv *Server) DoCallMsg3(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg3, err
 
     return msgOut, nil
 }
+
 func (srv *Server) DoCallMsg4(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg4, error) {
     log.Printf("DoCallMsg4 msg0.Id1 = %d", msg0.Id1)
 
@@ -70,6 +74,20 @@ func (srv *Server) DoCallMsg4(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg4, err
     msg3Out.Msg1 = msg1Out
 
     msgOut.Msg3 = msg3Out
+
+    return msgOut, nil
+}
+
+func (srv *Server) DoCallMsg5(ctx context.Context, msg0 *pb.Msg0) (*pb.Msg5, error) {
+    log.Printf("DoCallMsg5 msg0.Id1 = %d", msg0.Id1)
+
+    msgOut := new(pb.Msg5)
+    msgOut.Id1 = msg0.Id1 * 5
+
+    for i := 0; i < int(msg0.Id1); i++ {
+        name := fmt.Sprintf("name_%d", i)
+        msgOut.Names = append(msgOut.Names, name)
+    }
 
     return msgOut, nil
 }

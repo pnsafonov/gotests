@@ -29,6 +29,11 @@ message Msg4 {
     Msg3 msg3 = 2;
 }
 
+message Msg5 {
+    int64 id1 = 1;
+    repeated string names = 2;
+}
+
 
 service Service1 {
     rpc DoCall1(Msg0) returns (Msg0);
@@ -36,4 +41,5 @@ service Service1 {
     rpc DoCallMsg2(Msg0) returns (Msg2);
     rpc DoCallMsg3(Msg0) returns (Msg3);
     rpc DoCallMsg4(Msg0) returns (Msg4);
+    rpc DoCallMsg5(Msg0) returns (Msg5);
 }
