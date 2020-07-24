@@ -13,7 +13,8 @@ const (
 )
 
 func main() {
-    srv := new(logic.Server)
+    impl := new(logic.ServerImpl)
+    srv := logic.NewServer(impl)
 
     lis, err := net.Listen("tcp", port)
     if err != nil {
