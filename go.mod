@@ -3,7 +3,8 @@ module gotests
 go 1.14
 
 require (
+	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.3.3
-	golang.org/x/net v0.0.0-20190311183353-d8887717615a
+	golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7
 	google.golang.org/grpc v1.30.0
 )

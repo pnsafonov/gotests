@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package pb;
+option go_package = ".;pb";
+
+
+message LoginMessage {
+    string UserName = 1;
+    string PassHash = 2;
+}
+
+message UserInfoMessage {
+    int64 Id        = 1;
+    string FistName = 2;
+    string LastName = 3;
+    string Email    = 4;
+}
+
+message LoginResultMessage {
+    UserInfoMessage UserInfo    = 1;
+    bool Result                 = 2;
+}
+
+service Service2 {
+    rpc Login(LoginMessage) returns (LoginResultMessage);
+}
