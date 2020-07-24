@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package pb;
+option go_package = ".;pb";
+
+message Msg0 {
+    int64 id1 = 1;
+}
+
+message Msg1 {
+    int64 id1 = 1;
+    int64 id2 = 2;
+    string msg1 = 3;
+    string msg2 = 4;
+}
+
+message Msg2 {
+    int64 id = 1;
+    string msg = 2;
+}
+
+message Msg3 {
+    int64 id1 = 1;
+    Msg1 msg1 = 2;
+}
+
+message Msg4 {
+    int64 id1 = 1;
+    Msg3 msg3 = 2;
+}
+
+
+service Service1 {
+    rpc DoCall1(Msg0) returns (Msg0);
+    rpc DoCallMsg1(Msg0) returns (Msg1);
+    rpc DoCallMsg2(Msg0) returns (Msg2);
+    rpc DoCallMsg3(Msg0) returns (Msg3);
+    rpc DoCallMsg4(Msg0) returns (Msg4);
+}
