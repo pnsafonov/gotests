@@ -141,10 +141,10 @@ JOIN category as t2
 JOIN language as t3
 	ON t0.language_id = t3.language_id
 ORDER BY t0.film_id desc
-LIMIT 10
+LIMIT $1
 `
     ctx := context.Background()
-    rows, err := pool.Query(ctx, q)
+    rows, err := pool.Query(ctx, q, 100)
     if err != nil {
         fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
         os.Exit(1)
