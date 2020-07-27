@@ -6,10 +6,22 @@ import (
     "github.com/jackc/pgx/v4"
     "github.com/jackc/pgx/v4/pgxpool"
     "log"
+    "math/rand"
     "os"
     "testing"
     "time"
 )
+
+var (
+    ctx = context.Background()
+    src rand.Source
+    rnd *rand.Rand
+)
+
+func init() {
+    src = rand.NewSource(time.Now().UnixNano())
+    rnd = rand.New(src)
+}
 
 func TestPgx1(t *testing.T) {
     connString :=  "host=172.77.10.15 port=5432 user=test password=6397c7f7f97a dbname=dvdrental"
@@ -68,13 +80,6 @@ func getConnPool0(connString string) *pgxpool.Pool {
 
     //poolCfg.ConnConfig.PreferSimpleProtocol = true
 
-    poolCfg, err = pgxpool.ParseConfig(connString)
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "err: %v\n", err)
-        os.Exit(1)
-    }
-
-    ctx := context.Background()
     pool, err = pgxpool.ConnectConfig(ctx, poolCfg)
     if err != nil {
         fmt.Fprintf(os.Stderr, "err: %v\n", err)
@@ -96,7 +101,6 @@ func getConnPool2() *pgxpool.Pool {
 func TestPgx2(t *testing.T) {
     pool := getConnPool1()
 
-    ctx := context.Background()
     count := 100
     for i := 0; i < count; i++ {
         var title string
@@ -246,7 +250,211 @@ func TestContext4(t *testing.T) {
 }
 
 func TestPgx4(t *testing.T) {
-    //pool := getConnPool2()
+    pool := getConnPool2()
 
-    //pool.Begin()
+    q :=
+`
+DROP TABLE IF EXISTS tuser;
+
+CREATE TABLE tuser (
+	id 				SERIAL PRIMARY KEY,
+	login 			TEXT UNIQUE NOT NULL CHECK (login <> ''),
+	email 			TEXT UNIQUE NOT NULL CHECK (email <> ''),
+	mobile_phone	TEXT UNIQUE
+);
+`
+
+    ct, err := pool.Exec(ctx, q)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    fmt.Printf("ct = %s\n", ct)
+    fmt.Printf("done")
+}
+
+func TestPgx5(t *testing.T) {
+    pool := getConnPool2()
+
+    q :=
+`
+    INSERT INTO tuser
+    (login, email, mobile_phone)
+    VALUES ($1, $2, $3)
+    RETURNING id
+`
+
+    count := 10
+    for i := 0; i < count; i++ {
+        n := rnd.Int31()
+        login := fmt.Sprintf("login_%d", n)
+        email := fmt.Sprintf("name_%d@gmail.com", n)
+        phone := fmt.Sprintf("+7-950-133-74-80-%d", n)
+
+        row := pool.QueryRow(ctx, q, login, email, phone)
+
+        var id int
+        err := row.Scan(&id)
+        if err != nil {
+            t.Fatalf("err = %v", err)
+        }
+    }
+
+    fmt.Println("done")
+}
+
+type sys6 struct {
+    id          int
+    dbVersion   int
+    appVersion  string
+}
+
+// cannot insert multiple commands into a prepared statement - QueryRow
+// -> poolCfg.ConnConfig.PreferSimpleProtocol = true
+// no rows in results set - Scan
+func TestPgx6(t *testing.T) {
+    pool := getConnPool2()
+
+    q :=
+`
+BEGIN TRANSACTION;
+    
+CREATE TABLE IF NOT EXISTS sys (
+	id 				SERIAL PRIMARY KEY,
+    db_version      INTEGER NOT NULL,
+	app_version 	TEXT UNIQUE NOT NULL CHECK (app_version <> '')
+);
+
+INSERT INTO sys
+(id, db_version, app_version)
+VALUES (1, $1, $2)
+ON CONFLICT (id) DO UPDATE
+	SET 
+	db_version = $1, 
+	app_version = $2
+RETURNING id, db_version, app_version;
+
+COMMIT TRANSACTION;
+`
+
+    dbVersion := 3
+    appVersion := "1.0.3"
+    row := pool.QueryRow(ctx, q, dbVersion, appVersion)
+
+    sys := sys6{}
+    err := row.Scan(&sys.id, &sys.dbVersion, &sys.appVersion)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    fmt.Printf("id = %d, db_version = %d, app_version = %s\n", sys.id, sys.dbVersion, sys.appVersion)
+    fmt.Println("done")
+}
+
+// cannot insert multiple commands into a prepared statement
+func TestPgx7(t *testing.T) {
+    pool := getConnPool2()
+
+    q :=
+` 
+CREATE TABLE IF NOT EXISTS sys (
+	id 				SERIAL PRIMARY KEY,
+    db_version      INTEGER NOT NULL,
+	app_version 	TEXT UNIQUE NOT NULL CHECK (app_version <> '')
+);
+
+INSERT INTO sys
+(id, db_version, app_version)
+VALUES (1, $1, $2)
+ON CONFLICT (id) DO UPDATE
+	SET 
+	db_version = $1, 
+	app_version = $2
+RETURNING id, db_version, app_version;
+`
+
+    tx, err := pool.Begin(ctx)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    dbVersion := 3
+    appVersion := "1.0.3"
+    row := tx.QueryRow(ctx, q, dbVersion, appVersion)
+
+    sys := sys6{}
+    err = row.Scan(&sys.id, &sys.dbVersion, &sys.appVersion)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    err = tx.Commit(ctx)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    fmt.Printf("id = %d, db_version = %d, app_version = %s\n", sys.id, sys.dbVersion, sys.appVersion)
+    fmt.Println("done")
+}
+
+func TestPgx8(t *testing.T) {
+    pool := getConnPool2()
+
+    tx, err := pool.Begin(ctx)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    q0 :=
+`
+CREATE TABLE IF NOT EXISTS sys (
+	id 				SERIAL PRIMARY KEY,
+    db_version      INTEGER NOT NULL,
+	app_version 	TEXT UNIQUE NOT NULL CHECK (app_version <> '')
+);
+`
+
+    // no rows in result set
+    //row0 := tx.QueryRow(ctx, q0)
+    //err = row0.Scan()
+    //if err != nil {
+    //    t.Fatalf("err = %v", err)
+    //}
+
+    _, err = tx.Exec(ctx, q0)
+    if err != nil {
+       t.Fatalf("err = %v", err)
+    }
+    //fmt.Printf("ct = %s\n", ct)
+    //ct.RowsAffected()
+
+    q :=
+`
+INSERT INTO sys
+(id, db_version, app_version)
+VALUES (1, $1, $2)
+ON CONFLICT (id) DO UPDATE
+	SET 
+	db_version = $1, 
+	app_version = $2
+RETURNING id, db_version, app_version;
+`
+
+    dbVersion := 4
+    appVersion := "1.0.4"
+    row := tx.QueryRow(ctx, q, dbVersion, appVersion)
+
+    sys := sys6{}
+    err = row.Scan(&sys.id, &sys.dbVersion, &sys.appVersion)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    err = tx.Commit(ctx)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    fmt.Printf("id = %d, db_version = %d, app_version = %s\n", sys.id, sys.dbVersion, sys.appVersion)
+    fmt.Println("done")
 }
