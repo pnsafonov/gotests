@@ -612,3 +612,96 @@ RETURNING user_id, id
 
     log.Println("done")
 }
+
+type maxMonthPayment12 struct {
+    customerId  int
+    firstName   string
+    lastName    string
+    total       float64
+}
+
+func TestPgx12(t *testing.T) {
+    pool := getConnPool1()
+
+    q :=
+`
+SELECT SUM(p.amount) AS total, c.first_name, c.last_name, p.customer_id
+FROM payment AS p
+JOIN customer AS c
+	ON p.customer_id = c.customer_id
+GROUP BY p.customer_id, c.customer_id
+ORDER BY total DESC
+LIMIT $1
+`
+
+    rows, err := pool.Query(ctx, q, 10)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    payments := make([]*maxMonthPayment12, 0, 16)
+    for rows.Next() {
+        p := new(maxMonthPayment12)
+
+        err = rows.Scan(&p.total, &p.firstName, &p.lastName, &p.customerId)
+        if err != nil {
+            t.Fatalf("err = %v", err)
+        }
+
+        payments = append(payments, p)
+    }
+
+    for _, p := range payments {
+        log.Printf("total = %v, fn = %s, ln = %s, customerId = %d\n",
+            p.total, p.firstName, p.lastName, p.customerId)
+    }
+
+    fmt.Println("done")
+}
+
+type maxMonthPayment13 struct {
+    customerId  int
+    firstName   string
+    lastName    string
+    total       float64
+    month       time.Time
+}
+
+func TestPgx13(t *testing.T) {
+    pool := getConnPool1()
+
+    q := `
+SELECT SUM(p.amount) AS total, p.customer_id, date_trunc('month', payment_date) as m, c.first_name, c.last_name
+FROM payment AS p
+JOIN customer AS c
+	ON p.customer_id = c.customer_id
+GROUP BY p.customer_id, c.customer_id, m
+ORDER BY m DESC, total DESC
+LIMIT $1
+`
+
+    rows, err := pool.Query(ctx, q, 100)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    payments := make([]*maxMonthPayment13, 0, 16)
+    for rows.Next() {
+        p := new(maxMonthPayment13)
+
+        err = rows.Scan(&p.total, &p.customerId, &p.month, &p.firstName, &p.lastName, )
+        if err != nil {
+            t.Fatalf("err = %v", err)
+        }
+
+        payments = append(payments, p)
+    }
+
+    for _, p := range payments {
+        log.Printf("total = %v, fn = %s, ln = %s, customerId = %d\n",
+            p.total, p.firstName, p.lastName, p.customerId)
+    }
+
+    fmt.Println("done")
+}
+
