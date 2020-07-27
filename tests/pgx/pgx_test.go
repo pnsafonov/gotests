@@ -139,8 +139,7 @@ func (f *film3) load(rows pgx.Rows) (bool, error) {
 func TestPgx3(t *testing.T) {
     pool := getConnPool1()
 
-    q :=
-`
+    q := `
 SELECT t0.title, t0.release_year, t2.name, t3.name
 FROM film as t0
 JOIN film_category as t1
@@ -152,7 +151,6 @@ JOIN language as t3
 ORDER BY t0.film_id desc
 LIMIT $1
 `
-    ctx := context.Background()
     rows, err := pool.Query(ctx, q, 100)
     if err != nil {
         fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
