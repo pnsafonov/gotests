@@ -497,3 +497,118 @@ SELECT 'public.sys111'::regclass
 
     log.Println("done")
 }
+
+func TestPgx10(t *testing.T) {
+    pool := getConnPool2()
+
+    tx, err := pool.Begin(ctx)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    q0 := `
+CREATE TABLE IF NOT EXISTS tuser (
+	id 				SERIAL PRIMARY KEY,
+	login 			TEXT UNIQUE NOT NULL CHECK (login <> ''),
+	email 			TEXT UNIQUE NOT NULL CHECK (email <> ''),
+	mobile_phone	TEXT UNIQUE
+);
+`
+
+    q1 := `
+CREATE TABLE IF NOT EXISTS credit_card (
+    id 				SERIAL PRIMARY KEY,
+    user_id         INTEGER NOT NULL,
+    acc             TEXT UNIQUE NOT NULL CHECK (acc <> ''),
+    valid_month     INTEGER NOT NULL,
+    valid_year      INTEGER NOT NULL,
+    holder_name     TEXT NOT NULL CHECK (acc <> ''),
+    cvc             CHAR(16) NOT NULL CHECK (acc <> '')
+)
+`
+
+    _, err = tx.Exec(ctx, q0)
+    if err != nil {
+       t.Fatalf("err = %v", err)
+    }
+
+    _, err = tx.Exec(ctx, q1)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    err = tx.Commit(ctx)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    //ct, err := pool.Exec(ctx, q)
+    //if err != nil {
+    //    t.Fatalf("err = %v", err)
+    //}
+    //
+    //fmt.Printf("ct = %s\n", ct)
+    fmt.Printf("done")
+}
+
+func TestPgx11(t *testing.T) {
+    pool := getConnPool2()
+
+    tx, err := pool.Begin(ctx)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+    q := `
+WITH u AS (
+	INSERT INTO tuser
+	(login, email, mobile_phone)
+	VALUES ($1, $2, $3)
+	RETURNING id
+)
+
+INSERT INTO credit_card 
+(user_id, acc, valid_month, valid_year, holder_name, cvc)
+VALUES (
+	(SELECT u.id from u), 
+	$4, $5, $6, $7, $8
+)
+
+RETURNING user_id, id
+`
+
+    count := 10
+    for i := 0; i < count; i++ {
+        n := rnd.Int31()
+
+        login := fmt.Sprintf("login_%d", n)
+        email := fmt.Sprintf("login_%d", n)
+        phone := fmt.Sprintf("8-950-123-56-31-%d", n)
+
+        acc := fmt.Sprintf("1111-2222-7777-8888-%d", n)
+        mo := 5
+        year := 2021
+        holder := fmt.Sprintf("user_%d", n)
+        cvc := fmt.Sprintf("234%d", n)
+
+        row := tx.QueryRow(ctx, q,
+            login, email, phone,
+            acc, mo, year, holder, cvc)
+
+        userId := 0
+        credCardId := 0
+        err = row.Scan(&userId, &credCardId)
+        if err != nil {
+            t.Fatalf("err = %v", err)
+        }
+        log.Printf("user_id = %d, credit_card_id = %d\n", userId, credCardId)
+    }
+
+    err = tx.Commit(ctx)
+    //err = tx.Rollback(ctx)
+    if err != nil {
+       t.Fatalf("err = %v", err)
+    }
+
+    log.Println("done")
+}
