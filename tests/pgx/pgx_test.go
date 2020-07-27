@@ -88,6 +88,11 @@ func getConnPool1() *pgxpool.Pool {
     return getConnPool0(connString)
 }
 
+func getConnPool2() *pgxpool.Pool {
+    connString := "host=172.77.10.15 port=5432 user=test password=6397c7f7f97a dbname=test pool_min_conns=1 pool_max_conns=10"
+    return getConnPool0(connString)
+}
+
 func TestPgx2(t *testing.T) {
     pool := getConnPool1()
 
@@ -163,4 +168,85 @@ LIMIT $1
     }
 
     log.Println("done")
+}
+
+func TestContext1(t *testing.T) {
+    contextMain := context.Background()
+
+    //c1, f1 := context.WithTimeout(contextMain, time.Second * 1000)
+    //f1()
+
+    //c1, _ := context.WithTimeout(contextMain, time.Second * 1000)
+
+    c1, _ := context.WithTimeout(contextMain, time.Second * 1)
+    time.Sleep(time.Second * 2)
+
+    сh1 := c1.Done()
+    _, ok := <- сh1
+    fmt.Printf("ok = %v\n", ok)
+    _, ok = <- сh1
+    fmt.Printf("ok = %v\n", ok)
+    _, ok = <- сh1
+    fmt.Printf("ok = %v\n", ok)
+}
+
+func TestContext2(t *testing.T) {
+    c0 := context.Background()
+
+    c1, _ := context.WithTimeout(c0, time.Second * 1)
+    time.Sleep(time.Second * 2)
+
+    ch0 := c0.Done()
+    ch1 := c1.Done()
+
+    _, ok1 := <- ch1
+    fmt.Printf("ok = %v\n", ok1)
+    _, ok0 := <- ch0
+    fmt.Printf("ok = %v\n", ok0)
+}
+
+func TestContext3(t *testing.T) {
+    c0 := context.Background()
+
+    c1, _ := context.WithTimeout(c0, time.Second * 1000)
+    c2, _ := context.WithTimeout(c0, time.Second * 1)
+
+    ch0 := c0.Done()
+    ch1 := c1.Done()
+    ch2 := c2.Done()
+
+    time.Sleep(time.Second * 2)
+
+    _, ok2 := <- ch2
+    fmt.Printf("ok = %v\n", ok2)
+    _, ok1 := <- ch1
+    fmt.Printf("ok = %v\n", ok1)
+    _, ok0 := <- ch0
+    fmt.Printf("ok = %v\n", ok0)
+}
+
+func TestContext4(t *testing.T) {
+    c0 := context.Background()
+
+    c1, _ := context.WithTimeout(c0, time.Second * 5)
+    c2, _ := context.WithTimeout(c0, time.Second * 1)
+
+    //ch0 := c0.Done()
+    ch1 := c1.Done()
+    ch2 := c2.Done()
+
+    time.Sleep(time.Second * 2)
+
+    _, ok2 := <- ch2
+    fmt.Printf("ok = %v\n", ok2)
+    _, ok1 := <- ch1
+    fmt.Printf("ok = %v\n", ok1)
+    //_, ok0 := <- ch0
+    //fmt.Printf("ok = %v\n", ok0)
+}
+
+func TestPgx4(t *testing.T) {
+    //pool := getConnPool2()
+
+    //pool.Begin()
 }
