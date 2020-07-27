@@ -458,3 +458,42 @@ RETURNING id, db_version, app_version;
     fmt.Printf("id = %d, db_version = %d, app_version = %s\n", sys.id, sys.dbVersion, sys.appVersion)
     fmt.Println("done")
 }
+
+func TestPgx9(t *testing.T) {
+    pool := getConnPool2()
+
+    q :=
+`
+SELECT 'public.sys'::regclass
+`
+    row := pool.QueryRow(ctx, q)
+    var name1 string
+    err := row.Scan(&name1)
+    if err != nil {
+        t.Fatalf("err = %v", err)
+    }
+
+//    q2 :=
+//`
+//SELECT 'public.'$1::regclass
+//`
+//    row2 := pool.QueryRow(ctx, q2, "sys1")
+//    var name2 string
+//    err = row2.Scan(name2)
+//    if err != nil {
+//        t.Fatalf("err = %v", err)
+//    }
+
+    q2 :=
+        `
+SELECT 'public.sys111'::regclass
+`
+    row2 := pool.QueryRow(ctx, q2)
+    var name2 string
+    err = row2.Scan(name2)
+    if err != nil {
+       t.Fatalf("err = %v", err)
+    }
+
+    log.Println("done")
+}
