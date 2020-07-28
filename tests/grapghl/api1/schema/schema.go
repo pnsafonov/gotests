@@ -14,6 +14,33 @@ func init() {
         err error
     )
 
+    // person
+    iPersonCfg := graphql.ObjectConfig{}
+    iPersonCfg.Name = "Person"
+    iPersonCfgFields := make(graphql.Fields)
+    iPersonCfg.Fields = iPersonCfgFields
+    iPerson := graphql.NewObject(iPersonCfg)
+
+    fPerson := &graphql.Field{}
+    fPerson.Type = iPerson
+    fPerson.Resolve = resolvePerson
+
+    fPersonId := &graphql.Field{}
+    fPersonId.Type = graphql.Int
+    fPersonId.Resolve = iResolvePersonId
+
+    fPersonFirstName := &graphql.Field{}
+    fPersonFirstName.Type = graphql.String
+    fPersonFirstName.Resolve = iResolvePersonFirstName
+
+    fPersonLastName := &graphql.Field{}
+    fPersonLastName.Type = graphql.String
+    fPersonLastName.Resolve = iResolvePersonLastName
+
+    iPersonCfgFields["Id"] = fPersonId
+    iPersonCfgFields["FirstName"] = fPersonFirstName
+    iPersonCfgFields["LastName"] = fPersonLastName
+
     // sayhello
     fSayHelloArg1 := &graphql.ArgumentConfig{}
     fSayHelloArg1.Type = graphql.String
@@ -30,6 +57,7 @@ func init() {
     fHelloWorld.Resolve = resolveHelloWorld
 
     queryCfgFields := make(graphql.Fields)
+    queryCfgFields["person"] = fPerson
     queryCfgFields["helloworld"] = fHelloWorld
     queryCfgFields["sayhello"] = fSayHello
 
