@@ -8,9 +8,37 @@ import (
     "net/http"
 )
 
+type requestBody struct {
+    Query string
+}
+
 func httpHandler(w http.ResponseWriter, r *http.Request) {
-    q := r.URL.Query()
-    query := q.Get("query")
+    var query string
+
+    //q := r.URL.Query()
+    //query := q.Get("query")
+
+    if r.Method == "GET" {
+        q := r.URL.Query()
+        query = q.Get("query")
+    } else {
+        //bytes, err := ioutil.ReadAll(r.Body)
+        //if err != nil {
+        //    http.Error(w, "Invalid Request",400)
+        //    return
+        //}
+
+        decoder := json.NewDecoder(r.Body)
+
+        var req requestBody
+        err := decoder.Decode(&req)
+        if err != nil {
+            http.Error(w, "Invalid Request",400)
+            return
+        }
+
+        query = req.Query
+    }
 
     result := graphql.Do(graphql.Params{
         Schema:        schema.Schema,

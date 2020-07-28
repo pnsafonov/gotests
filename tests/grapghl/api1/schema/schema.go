@@ -14,6 +14,85 @@ func init() {
         err error
     )
 
+    // Type EntityA
+    oEntityACfg := graphql.ObjectConfig{}
+    oEntityACfg.Name = "EntityA"
+    oEntityAFields := make(graphql.Fields)
+    oEntityACfg.Fields = oEntityAFields
+    oEntityA := graphql.NewObject(oEntityACfg)
+
+    fEntityAId := &graphql.Field{}
+    fEntityAId.Type = graphql.Int
+    fEntityAId.Resolve = oResolveEntityAId
+
+    fEntityAName := &graphql.Field{}
+    fEntityAName.Type = graphql.String
+    fEntityAName.Resolve = oResolveEntityAName
+
+    fEntityAAmount := &graphql.Field{}
+    fEntityAAmount.Type = graphql.Float
+    fEntityAAmount.Resolve = oResolveEntityAAmount
+
+    oEntityAFields["Id"] = fEntityAId
+    oEntityAFields["Name"] = fEntityAName
+    oEntityAFields["Amount"] = fEntityAAmount
+
+    // Type EntityB
+    oEntityBCfg := graphql.ObjectConfig{}
+    oEntityBCfg.Name = "EntityB"
+    oEntityBFields := make(graphql.Fields)
+    oEntityBCfg.Fields = oEntityBFields
+    oEntityB := graphql.NewObject(oEntityBCfg)
+
+    fEntityBId := &graphql.Field{}
+    fEntityBId.Type = graphql.Int
+    fEntityBId.Resolve = oResolveEntityBId
+
+    fEntityBDescription := &graphql.Field{}
+    fEntityBDescription.Type = graphql.String
+    fEntityBDescription.Resolve = oResolveEntityBDescription
+
+    fEntityBEntityA := &graphql.Field{}
+    fEntityBEntityA.Type = oEntityA
+    fEntityBEntityA.Resolve = oResolveEntityBEntityA
+
+    oEntityBFields["Id"] = fEntityBId
+    oEntityBFields["Description"] = fEntityBDescription
+    oEntityBFields["EntityA"] = fEntityBEntityA
+
+    // Type EntityC
+    oEntityCCfg := graphql.ObjectConfig{}
+    oEntityCCfg.Name = "EntityC"
+    oEntityCFields := make(graphql.Fields)
+    oEntityCCfg.Fields = oEntityCFields
+    oEntityC := graphql.NewObject(oEntityCCfg)
+
+    fEntityCId := &graphql.Field{}
+    fEntityCId.Type = graphql.Int
+    fEntityCId.Resolve = oResolveEntityCId
+
+    fEntityCTag := &graphql.Field{}
+    fEntityCTag.Type = graphql.String
+    fEntityCTag.Resolve = oResolveEntityCTag
+
+    fEntityCEntityB := &graphql.Field{}
+    fEntityCEntityB.Type = oEntityB
+    fEntityCEntityB.Resolve = oResolveEntityCEntityB
+
+    oEntityCFields["Id"] = fEntityCId
+    oEntityCFields["Tag"] = fEntityCTag
+    oEntityCFields["EntityB"] = fEntityCEntityB
+
+    // GetEntityA
+    fGetEntityA := &graphql.Field{}
+    fGetEntityA.Type = oEntityA
+    fGetEntityA.Resolve = resolveGetEntityA
+
+    // GetEntityC
+    fGetEntityC := &graphql.Field{}
+    fGetEntityC.Type = oEntityC
+    fGetEntityC.Resolve = resolveGetEntityC
+
     // months
     fMonths := &graphql.Field{}
     fMonths.Type = graphql.NewList(graphql.String)
@@ -67,6 +146,8 @@ func init() {
     queryCfgFields["person"] = fPerson
     queryCfgFields["helloworld"] = fHelloWorld
     queryCfgFields["sayhello"] = fSayHello
+    queryCfgFields["GetEntityC"] = fGetEntityC
+    queryCfgFields["GetEntityA"] = fGetEntityA
 
     queryCfg := graphql.ObjectConfig{}
     queryCfg.Name = "Query"

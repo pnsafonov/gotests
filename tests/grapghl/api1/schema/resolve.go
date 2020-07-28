@@ -8,10 +8,125 @@ var (
     }
 )
 
-type Person struct {
-    Id        int32
-    FirstName string
-    LastName  string
+type EntityA struct {
+    Id      int
+    Name    string
+    Amount  float32
+}
+
+type EntityB struct {
+    Id          int
+    Description string
+    EntityA     EntityA
+}
+
+type EntityC struct {
+    Id      int
+    Tag     string
+    EntityB EntityB
+}
+
+func resolveGetEntityA(p graphql.ResolveParams) (interface{}, error) {
+    entA := EntityA{}
+    entA.Id = 3354
+    entA.Name = "Name of EntityA"
+
+    return entA, nil
+}
+
+// query{
+//  GetEntityC{
+//    EntityB {
+//      Id
+//      Description
+//      EntityA {
+//        Amount
+//        Id
+//        Name
+//      }
+//    }
+//    Id
+//    Tag
+//  }
+//}
+func resolveGetEntityC(p graphql.ResolveParams) (interface{}, error) {
+    entA := EntityA{}
+    entA.Id = 7782
+    entA.Name = "Some name of EntityA"
+
+    entB := EntityB{}
+    entB.Id = 37
+    entB.Description = "This is description of EntityB"
+    entB.EntityA = entA
+
+    entC := EntityC{}
+    entC.Id = 111099
+    entC.EntityB = entB
+
+    return entC, nil
+}
+
+func oResolveEntityAId(p graphql.ResolveParams) (interface{}, error) {
+    if ent, ok := p.Source.(EntityA); ok {
+        return ent.Id, nil
+    }
+    return nil, nil
+}
+
+func oResolveEntityAName(p graphql.ResolveParams) (interface{}, error) {
+    if ent, ok := p.Source.(EntityA); ok {
+        return ent.Name, nil
+    }
+    return nil, nil
+}
+
+func oResolveEntityAAmount(p graphql.ResolveParams) (interface{}, error) {
+    if ent, ok := p.Source.(EntityA); ok {
+        return ent.Amount, nil
+    }
+    return nil, nil
+}
+
+func oResolveEntityBId(p graphql.ResolveParams) (interface{}, error) {
+    if ent, ok := p.Source.(EntityB); ok {
+        return ent.Id, nil
+    }
+    return nil, nil
+}
+
+func oResolveEntityBDescription(p graphql.ResolveParams) (interface{}, error) {
+    if ent, ok := p.Source.(EntityB); ok {
+        return ent.Description, nil
+    }
+    return nil, nil
+}
+
+func oResolveEntityBEntityA(p graphql.ResolveParams) (interface{}, error) {
+    if ent, ok := p.Source.(EntityB); ok {
+        return ent.EntityA, nil
+    }
+    return nil, nil
+}
+
+func oResolveEntityCId(p graphql.ResolveParams) (interface{}, error) {
+    if ent, ok := p.Source.(EntityC); ok {
+        return ent.Id, nil
+    }
+    return nil, nil
+}
+
+func oResolveEntityCTag(p graphql.ResolveParams) (interface{}, error) {
+    if ent, ok := p.Source.(EntityC); ok {
+        return ent.Tag, nil
+    }
+    return nil, nil
+}
+
+func oResolveEntityCEntityB(p graphql.ResolveParams) (interface{}, error) {
+    if ent, ok := p.Source.(EntityC); ok {
+        return ent.EntityB, nil
+    }
+    return nil, nil
 }
 
 //query {
@@ -19,6 +134,12 @@ type Person struct {
 //}
 func resolveMonths(p graphql.ResolveParams) (interface{}, error) {
     return months, nil
+}
+
+type Person struct {
+    Id        int32
+    FirstName string
+    LastName  string
 }
 
 //query {
