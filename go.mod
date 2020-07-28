@@ -3,6 +3,7 @@ module gotests
 go 1.14
 
 require (
+	github.com/99designs/gqlgen v0.11.3 // indirect
 	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.3.3
 	github.com/graphql-go/graphql v0.7.9
