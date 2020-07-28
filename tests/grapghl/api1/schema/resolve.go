@@ -2,10 +2,23 @@ package schema
 
 import "github.com/graphql-go/graphql"
 
+var (
+    months = []string{
+        "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",
+    }
+)
+
 type Person struct {
     Id        int32
     FirstName string
     LastName  string
+}
+
+//query {
+//    resolveMonths
+//}
+func resolveMonths(p graphql.ResolveParams) (interface{}, error) {
+    return months, nil
 }
 
 //query {

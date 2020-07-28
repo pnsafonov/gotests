@@ -14,6 +14,11 @@ func init() {
         err error
     )
 
+    // months
+    fMonths := &graphql.Field{}
+    fMonths.Type = graphql.NewList(graphql.String)
+    fMonths.Resolve = resolveMonths
+
     // person
     oPersonCfg := graphql.ObjectConfig{}
     oPersonCfg.Name = "Person"
@@ -56,7 +61,9 @@ func init() {
     fHelloWorld.Type = graphql.String
     fHelloWorld.Resolve = resolveHelloWorld
 
+    //
     queryCfgFields := make(graphql.Fields)
+    queryCfgFields["resolveMonths"] = fMonths
     queryCfgFields["person"] = fPerson
     queryCfgFields["helloworld"] = fHelloWorld
     queryCfgFields["sayhello"] = fSayHello
