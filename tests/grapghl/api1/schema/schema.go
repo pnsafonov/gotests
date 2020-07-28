@@ -15,31 +15,31 @@ func init() {
     )
 
     // person
-    iPersonCfg := graphql.ObjectConfig{}
-    iPersonCfg.Name = "Person"
-    iPersonCfgFields := make(graphql.Fields)
-    iPersonCfg.Fields = iPersonCfgFields
-    iPerson := graphql.NewObject(iPersonCfg)
+    oPersonCfg := graphql.ObjectConfig{}
+    oPersonCfg.Name = "Person"
+    oPersonCfgFields := make(graphql.Fields)
+    oPersonCfg.Fields = oPersonCfgFields
+    oPerson := graphql.NewObject(oPersonCfg)
 
     fPerson := &graphql.Field{}
-    fPerson.Type = iPerson
+    fPerson.Type = oPerson
     fPerson.Resolve = resolvePerson
 
     fPersonId := &graphql.Field{}
     fPersonId.Type = graphql.Int
-    fPersonId.Resolve = iResolvePersonId
+    fPersonId.Resolve = oResolvePersonId
 
     fPersonFirstName := &graphql.Field{}
     fPersonFirstName.Type = graphql.String
-    fPersonFirstName.Resolve = iResolvePersonFirstName
+    fPersonFirstName.Resolve = oResolvePersonFirstName
 
     fPersonLastName := &graphql.Field{}
     fPersonLastName.Type = graphql.String
-    fPersonLastName.Resolve = iResolvePersonLastName
+    fPersonLastName.Resolve = oResolvePersonLastName
 
-    iPersonCfgFields["Id"] = fPersonId
-    iPersonCfgFields["FirstName"] = fPersonFirstName
-    iPersonCfgFields["LastName"] = fPersonLastName
+    oPersonCfgFields["Id"] = fPersonId
+    oPersonCfgFields["FirstName"] = fPersonFirstName
+    oPersonCfgFields["LastName"] = fPersonLastName
 
     // sayhello
     fSayHelloArg1 := &graphql.ArgumentConfig{}

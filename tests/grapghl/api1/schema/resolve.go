@@ -21,21 +21,21 @@ func resolvePerson(p graphql.ResolveParams) (interface{}, error) {
     return person, nil
 }
 
-func iResolvePersonId(p graphql.ResolveParams) (interface{}, error) {
+func oResolvePersonId(p graphql.ResolveParams) (interface{}, error) {
     if person, ok := p.Source.(Person); ok {
         return person.Id, nil
     }
     return nil, nil
 }
 
-func iResolvePersonFirstName(p graphql.ResolveParams) (interface{}, error) {
+func oResolvePersonFirstName(p graphql.ResolveParams) (interface{}, error) {
     if person, ok := p.Source.(Person); ok {
         return person.FirstName, nil
     }
     return nil, nil
 }
 
-func iResolvePersonLastName(p graphql.ResolveParams) (interface{}, error) {
+func oResolvePersonLastName(p graphql.ResolveParams) (interface{}, error) {
     if person, ok := p.Source.(Person); ok {
         return person.LastName, nil
     }
