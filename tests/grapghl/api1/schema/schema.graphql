@@ -1,12 +1,32 @@
-
-
-
-type Query {
-
-    sayhello(msg: String): String
-    helloworld: String
-
+type EntityA {
+    Amount: Float
+    Id: Int
+    Name: String
 }
 
+type EntityB {
+    Description: String
+    EntityA: EntityA
+    Id: Int
+}
 
+type EntityC {
+    EntityB: EntityB
+    Id: Int
+    Tag: String
+}
 
+type Person {
+    FirstName: String
+    Id: Int
+    LastName: String
+}
+
+type Query {
+    GetEntityA: EntityA
+    GetEntityC: EntityC
+    helloworld: String
+    person: Person
+    resolveMonths: [String]
+    sayhello(msg: String): String
+}
