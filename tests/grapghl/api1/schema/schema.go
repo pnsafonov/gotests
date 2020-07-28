@@ -14,12 +14,24 @@ func init() {
         err error
     )
 
+    // sayhello
+    fSayHelloArg1 := &graphql.ArgumentConfig{}
+    fSayHelloArg1.Type = graphql.String
+
+    fSayHello := &graphql.Field{}
+    fSayHello.Type = graphql.String
+    fSayHello.Args = make(graphql.FieldConfigArgument)
+    fSayHello.Args["msg"] = fSayHelloArg1
+    fSayHello.Resolve = resolveSayHello
+
+    // helloworld
     fHelloWorld := &graphql.Field{}
     fHelloWorld.Type = graphql.String
     fHelloWorld.Resolve = resolveHelloWorld
 
     queryCfgFields := make(graphql.Fields)
     queryCfgFields["helloworld"] = fHelloWorld
+    queryCfgFields["sayhello"] = fSayHello
 
     queryCfg := graphql.ObjectConfig{}
     queryCfg.Name = "Query"

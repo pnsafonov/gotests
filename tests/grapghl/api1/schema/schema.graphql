@@ -3,6 +3,7 @@
 
 type Query {
 
+    sayhello(msg: String): String
     helloworld: String
 
 }
