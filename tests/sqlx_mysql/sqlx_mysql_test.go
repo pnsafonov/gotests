@@ -275,3 +275,10 @@ WHERE id = 32293
     log.Printf("reqs id = %v\n", req.ID)
     log.Println("done")
 }
+
+//INSERT INTO cc_agent_number
+//(id_agent, number, name, block_international)
+//VALUES (:agent_id, :number, :name, :block_international)
+//ON DUPLICATE KEY UPDATE
+//    id=LAST_INSERT_ID(id),
+//    id_agent=:agent_id, name=:name, block_international=:block_international
