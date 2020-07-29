@@ -76,3 +76,71 @@ ON DUPLICATE KEY UPDATE
 
     log.Println("done")
 }
+
+func TestSqlxMysql2(t *testing.T) {
+    db := getDb0()
+
+    q := `
+INSERT INTO cc_agent_number 
+(id_agent, number, name, block_international)
+VALUES (:agent_id, :number, :name, :block_international)
+ON DUPLICATE KEY UPDATE
+	id_agent=:agent_id, name=:name, block_international=:block_international;
+`
+
+    n := 77
+    req := AddPhoneRequest{}
+    req.AgentID = 1
+    req.Number = fmt.Sprintf("8-930-560-12-55-%d", n)
+    req.Name = fmt.Sprintf("name_%d", n)
+    req.BlockInternational = (n % 2) == 0
+
+    // sql: converting argument $1 type: unsupported type sqlx_mysql.AddPhoneRequest, a struct
+    //result, err := db.Exec(q, req)
+
+    // ok
+    result, err := db.NamedExec(q, req)
+    if err != nil {
+       logFatal(err)
+    }
+
+    ra, err := result.RowsAffected()
+    if err != nil {
+       logFatal(err)
+    }
+    log.Printf("ra = %d\n", ra)
+
+    log.Println("done")
+}
+
+func TestSqlxMysql3(t *testing.T) {
+    db := getDb0()
+
+    q := `
+INSERT INTO cc_agent_number 
+(id_agent, number, name, block_international)
+VALUES (:agent_id, :number, :name, :block_international)
+ON DUPLICATE KEY UPDATE
+	id_agent=:agent_id, name=:name, block_international=:block_international;
+`
+
+    n := 77
+    req := AddPhoneRequest{}
+    req.AgentID = 1
+    req.Number = fmt.Sprintf("8-930-560-12-55-%d", n)
+    req.Name = fmt.Sprintf("name_%d", n)
+    req.BlockInternational = (n % 2) == 0
+
+    // sql: converting argument $1 type: unsupported type sqlx_mysql.AddPhoneRequest, a struct
+    //result, err := db.Exec(q, req)
+
+    rows,  err := db.NamedQuery(q, req)
+    if err != nil {
+        logFatal(err)
+    }
+
+    cols, err := rows.Columns()
+    log.Printf("cols = %v\n", cols)
+
+    log.Println("done")
+}
