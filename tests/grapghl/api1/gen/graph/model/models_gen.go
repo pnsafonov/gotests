@@ -2,19 +2,26 @@
 
 package model
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type EntityA struct {
+	Amount *float64 `json:"Amount"`
+	ID     *int     `json:"Id"`
+	Name   *string  `json:"Name"`
 }
 
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
+type EntityB struct {
+	Description *string  `json:"Description"`
+	EntityA     *EntityA `json:"EntityA"`
+	ID          *int     `json:"Id"`
 }
 
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+type EntityC struct {
+	EntityB *EntityB `json:"EntityB"`
+	ID      *int     `json:"Id"`
+	Tag     *string  `json:"Tag"`
+}
+
+type Person struct {
+	FirstName *string `json:"FirstName"`
+	ID        *int    `json:"Id"`
+	LastName  *string `json:"LastName"`
 }
