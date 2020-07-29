@@ -144,3 +144,34 @@ ON DUPLICATE KEY UPDATE
 
     log.Println("done")
 }
+
+func TestSqlxMysql4(t *testing.T) {
+    db := getDb0()
+
+    q := `
+SELECT id_agent as agent_id, number, name, block_international
+FROM cc_agent_number
+`
+
+    //rows,  err := db.NamedQuery(q, nil)            // fail
+    //rows,  err := db.NamedQuery(q, AddPhoneRequest{})   // ok
+    //rows,  err := db.NamedQuery(q, &AddPhoneRequest{})  // ok
+    rows,  err := db.NamedQuery(q, struct{}{})            // ok
+    if err != nil {
+        logFatal(err)
+    }
+
+    reqs := make([]AddPhoneRequest, 0, 10)
+    for rows.Next() {
+        req := AddPhoneRequest{}
+        err = rows.StructScan(&req)
+        if err != nil {
+            logFatal(err)
+        }
+
+        reqs = append(reqs, req)
+    }
+
+    log.Printf("reqs len = %v\n", len(reqs))
+    log.Println("done")
+}
