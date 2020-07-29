@@ -175,3 +175,52 @@ FROM cc_agent_number
     log.Printf("reqs len = %v\n", len(reqs))
     log.Println("done")
 }
+
+func TestSqlxMysql5(t *testing.T) {
+    db := getDb0()
+
+    q := `
+SELECT id_agent as agent_id, number, name, block_international
+FROM cc_agent_number
+`
+
+    rows,  err := db.Query(q)
+    if err != nil {
+        logFatal(err)
+    }
+
+    reqs := make([]AddPhoneRequest, 0, 10)
+    err = sqlx.StructScan(rows, &reqs)
+    if err != nil {
+        logFatal(err)
+    }
+
+    log.Printf("reqs len = %v\n", len(reqs))
+    log.Println("done")
+}
+
+func TestSqlxMysql6(t *testing.T) {
+    db := getDb0()
+
+    q := `
+SELECT id_agent as agent_id, number, name, block_international
+FROM cc_agent_number
+`
+
+    //rows,  err := db.NamedQuery(q, nil)            // fail
+    //rows,  err := db.NamedQuery(q, AddPhoneRequest{})   // ok
+    //rows,  err := db.NamedQuery(q, &AddPhoneRequest{})  // ok
+    rows,  err := db.NamedQuery(q, struct{}{})            // ok
+    if err != nil {
+        logFatal(err)
+    }
+
+    reqs := make([]AddPhoneRequest, 0, 10)
+    err = sqlx.StructScan(rows, &reqs)
+    if err != nil {
+        logFatal(err)
+    }
+
+    log.Printf("reqs len = %v\n", len(reqs))
+    log.Println("done")
+}
