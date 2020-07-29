@@ -46,6 +46,10 @@ type AddPhoneRequest struct {
 func TestSqlxMysql1(t *testing.T) {
     db := getDb0()
 
+    testSqlxMysql1(db)
+}
+
+func testSqlxMysql1(db *sqlx.DB) {
     q := `
 INSERT INTO cc_agent_number 
 (id_agent, number, name, block_international)
@@ -79,7 +83,7 @@ ON DUPLICATE KEY UPDATE
     if err != nil {
         logFatal(err)
     }
-    log.Printf("id = %d\n", id)
+    log.Printf("testSqlxMysql1, id = %d\n", id)
 
     log.Println("done")
 }
@@ -87,20 +91,33 @@ ON DUPLICATE KEY UPDATE
 func TestSqlxMysql2(t *testing.T) {
     db := getDb0()
 
+    testSqlxMysql2(db, "")
+}
+
+func TestSqlxMysql1_2_2(t *testing.T) {
+    db := getDb0()
+
+    testSqlxMysql1(db)
+    //testSqlxMysql2(db, "1")
+    testSqlxMysql2(db, "")
+    testSqlxMysql1(db)
+}
+
+func testSqlxMysql2(db *sqlx.DB, nameChange string) {
     q := `
 INSERT INTO cc_agent_number 
 (id_agent, number, name, block_international)
 VALUES (:agent_id, :number, :name, :block_international)
 ON DUPLICATE KEY UPDATE
     id=LAST_INSERT_ID(id),
-	id_agent=:agent_id, name=:name, block_international=:block_international;
+	id_agent=:agent_id, name=:name, block_international=:block_international
 `
 
     n := 77
     req := AddPhoneRequest{}
     req.AgentID = 1
     req.Number = fmt.Sprintf("8-930-560-12-55-%d", n)
-    req.Name = fmt.Sprintf("name_%d", n)
+    req.Name = fmt.Sprintf("name_%d%s", n, nameChange)
     req.BlockInternational = (n % 2) == 0
 
     // sql: converting argument $1 type: unsupported type sqlx_mysql.AddPhoneRequest, a struct
@@ -109,12 +126,12 @@ ON DUPLICATE KEY UPDATE
     // ok
     result, err := db.NamedExec(q, req)
     if err != nil {
-       logFatal(err)
+        logFatal(err)
     }
 
     ra, err := result.RowsAffected()
     if err != nil {
-       logFatal(err)
+        logFatal(err)
     }
     log.Printf("ra = %d\n", ra)
 
@@ -122,7 +139,7 @@ ON DUPLICATE KEY UPDATE
     if err != nil {
         logFatal(err)
     }
-    log.Printf("id = %d\n", id)
+    log.Printf("testSqlxMysql2, id = %d\n", id)
 
     log.Println("done")
 }
