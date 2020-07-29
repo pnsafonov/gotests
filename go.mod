@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/99designs/gqlgen v0.11.3 // indirect
 	github.com/go-kit/kit v0.10.0
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang/protobuf v1.3.3
 	github.com/graphql-go/graphql v0.7.9
 	github.com/jackc/pgx/v4 v4.8.0
