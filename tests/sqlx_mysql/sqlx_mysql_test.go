@@ -75,6 +75,12 @@ ON DUPLICATE KEY UPDATE
     }
     log.Printf("ra = %d\n", ra)
 
+    id, err := result.LastInsertId()
+    if err != nil {
+        logFatal(err)
+    }
+    log.Printf("id = %d\n", id)
+
     log.Println("done")
 }
 
@@ -86,6 +92,7 @@ INSERT INTO cc_agent_number
 (id_agent, number, name, block_international)
 VALUES (:agent_id, :number, :name, :block_international)
 ON DUPLICATE KEY UPDATE
+    id=LAST_INSERT_ID(id),
 	id_agent=:agent_id, name=:name, block_international=:block_international;
 `
 
@@ -111,6 +118,12 @@ ON DUPLICATE KEY UPDATE
     }
     log.Printf("ra = %d\n", ra)
 
+    id, err := result.LastInsertId()
+    if err != nil {
+        logFatal(err)
+    }
+    log.Printf("id = %d\n", id)
+
     log.Println("done")
 }
 
@@ -122,6 +135,7 @@ INSERT INTO cc_agent_number
 (id_agent, number, name, block_international)
 VALUES (:agent_id, :number, :name, :block_international)
 ON DUPLICATE KEY UPDATE
+    id=LAST_INSERT_ID(id),
 	id_agent=:agent_id, name=:name, block_international=:block_international;
 `
 
