@@ -36,6 +36,7 @@ func getDb0() *sqlx.DB {
 }
 
 type AddPhoneRequest struct {
+    ID                 int32  `db:"id"`
     AgentID 		   int32  `db:"agent_id"`
     Number 			   string `db:"number"`
     Name 			   string `db:"name"`
@@ -222,5 +223,24 @@ FROM cc_agent_number
     }
 
     log.Printf("reqs len = %v\n", len(reqs))
+    log.Println("done")
+}
+
+func TestSqlxMysql7(t *testing.T) {
+    db := getDb0()
+
+    q := `
+SELECT id, id_agent as agent_id, number, name, block_international
+FROM cc_agent_number
+WHERE id = 32293
+`
+
+    req := &AddPhoneRequest{}
+    err := db.Get(req, q)
+    if err != nil {
+        logFatal(err)
+    }
+
+    log.Printf("reqs id = %v\n", req.ID)
     log.Println("done")
 }
