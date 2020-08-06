@@ -91,4 +91,46 @@ func getStructDecl(decl ast.Decl) (st *ast.StructType, ok bool) {
 	return
 }
 
+type GenStruct struct {
+	Decl 		ast.Decl
+	StructType  *ast.StructType
 
+	Name 		string
+}
+
+type GenField struct {
+
+}
+
+func ParseFile(goFile string) ([]GenStruct, error) {
+	ast0, err := parser.ParseFile(token.NewFileSet(), goFile, nil,  parser.ParseComments)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]GenStruct, 0, 4)
+	for _, decl := range ast0.Decls {
+		st, ok := getStructDecl(decl)
+		if !ok {
+			continue
+		}
+
+		gs := GenStruct{}
+		gs.Decl = decl
+		gs.StructType = st
+
+		result = append(result, gs)
+	}
+
+	return result, nil
+}
+
+func TestParseFile1(t *testing.T) {
+	result, err := ParseFile("parser_input.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result) == 0 {
+		t.Fatal("len is 0")
+	}
+}
