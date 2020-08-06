@@ -95,6 +95,17 @@ func getStructDecl(decl ast.Decl) (result GenStruct, ok bool) {
 	if ts.Name != nil {
 		result.Name = ts.Name.Name
 	}
+
+	if gd.Doc != nil {
+		for _, cg := range gd.Doc.List {
+			skip := TryParseSerSkip(cg.Text)
+			if skip {
+				result.Skip = true
+				break
+			}
+		}
+	}
+
 	return
 }
 

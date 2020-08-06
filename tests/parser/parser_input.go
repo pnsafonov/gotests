@@ -61,6 +61,7 @@ Just a multi-line
 comment
  */
 
+//ser:skip
 type structA struct {
 	a1 int
 	a2 int
