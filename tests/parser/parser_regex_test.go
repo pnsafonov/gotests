@@ -3,11 +3,13 @@ package parser
 import (
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 )
 
 var (
  	rgx1 = regexp.MustCompile(`id\s*\:\s*(?P<id>\d+)`)
+ 	rgxSerStr = regexp.MustCompile(`ser\s*\:\s*(?P<skip>\S+)`)
 )
 
 func TryParseId(str string) (result int, ok bool) {
@@ -22,6 +24,23 @@ func TryParseId(str string) (result int, ok bool) {
 	}
 
 	return v, true
+}
+
+func TryParseSerStr(str string) (result string, ok bool) {
+	sm := rgxSerStr.FindStringSubmatch(str)
+	if len(sm) != 2 {
+		return "", false
+	}
+	return sm[1], true
+}
+
+func TryParseSerSkip(str string) bool {
+	result, ok := TryParseSerStr(str)
+	if !ok {
+		// not found, so don't skip
+		return false
+	}
+	return strings.EqualFold(result, "skip")
 }
 
 func TestRegex1(t *testing.T) {
@@ -54,6 +73,41 @@ func TestRegex2(t *testing.T) {
 
 	r4, ok4 := TryParseId("/*		   id    : 8  */")
 	if !ok4 || r4 != 8 {
+		t.Fatal("parse failed")
+	}
+}
+func TestTryParseSerStr1(t *testing.T) {
+	r1, ok1 := TryParseSerStr("ser:    skip")
+	if !ok1 || r1 != "skip" {
+		t.Fatal("parse failed")
+	}
+
+	r2, ok2 := TryParseSerStr("//ser:skip")
+	if !ok2 || r2 != "skip" {
+		t.Fatal("parse failed")
+	}
+
+	r3, ok3 := TryParseSerStr("  //	ser	:	skip	")
+	if !ok3 || r3 != "skip" {
+		t.Fatal("parse failed")
+	}
+}
+
+func TestTryParseSerSkip(t *testing.T) {
+	r := TryParseSerSkip("ser:    skip")
+	if !r {
+		t.Fatal("parse fail")
+	}
+	r = TryParseSerSkip("ser:skip2")
+	if r {
+		t.Fatal("parse fail")
+	}
+	r = TryParseSerSkip("  //	ser	:	sKiP	")
+	if !r {
+		t.Fatal("parse failed")
+	}
+	r = TryParseSerSkip("  //	ser	:	skip1	")
+	if r {
 		t.Fatal("parse failed")
 	}
 }

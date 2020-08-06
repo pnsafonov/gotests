@@ -65,37 +65,49 @@ func TestParse2(t *testing.T) {
 			continue
 		}
 
-		fmt.Printf("incomplete = %v\n", st.Incomplete)
+		fmt.Printf("name = %v\n", st.Name)
 	}
 
 	fmt.Println("done")
 }
 
-func getStructDecl(decl ast.Decl) (st *ast.StructType, ok bool) {
+func getStructDecl(decl ast.Decl) (result GenStruct, ok bool) {
 	gd, ok := decl.(*ast.GenDecl)
 	if !ok {
-		return nil, false
+		return GenStruct{}, false
 	}
 
 	if len(gd.Specs) == 0 {
-		return nil, false
+		return GenStruct{}, false
 	}
 	sp := gd.Specs[0]
 
 	ts, ok := sp.(*ast.TypeSpec)
 	if !ok {
-		return nil, false
+		return GenStruct{}, false
 	}
 
-	st, ok = ts.Type.(*ast.StructType)
+	st, ok := ts.Type.(*ast.StructType)
+
+	result.StructType = st
+	result.Decl = decl
+	result.TypeSpec = ts
+	if ts.Name != nil {
+		result.Name = ts.Name.Name
+	}
 	return
 }
 
 type GenStruct struct {
+	// ast fields
 	Decl 		ast.Decl
 	StructType  *ast.StructType
+	TypeSpec 	*ast.TypeSpec
 
+	// name of struct
 	Name 		string
+	// skip serialization
+	Skip 		bool
 }
 
 type GenField struct {
@@ -110,14 +122,10 @@ func ParseFile(goFile string) ([]GenStruct, error) {
 
 	result := make([]GenStruct, 0, 4)
 	for _, decl := range ast0.Decls {
-		st, ok := getStructDecl(decl)
+		gs, ok := getStructDecl(decl)
 		if !ok {
 			continue
 		}
-
-		gs := GenStruct{}
-		gs.Decl = decl
-		gs.StructType = st
 
 		result = append(result, gs)
 	}
