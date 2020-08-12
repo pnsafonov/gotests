@@ -51,6 +51,25 @@ JOIN language as t3
 ORDER BY t0.film_id desc
 LIMIT $1
 `
+
+    row := db.QueryRow(q, 100)
+    f1 := film3{}
+    err = row.Scan(&f1.title, &f1.year, &f1.category, &f1.lang)
+    if err != nil {
+       fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+       os.Exit(1)
+    }
+    //err = row.Scan(&f1.title, &f1.year, &f1.category, &f1.lang)
+    //if err != nil {
+    //    fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+    //    os.Exit(1)
+    //}
+    //err = row.Scan(&f1.title, &f1.year, &f1.category, &f1.lang)
+    //if err != nil {
+    //   fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+    //   os.Exit(1)
+    //}
+
     rows, err := db.Query(q, 100)
     if err != nil {
         fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
