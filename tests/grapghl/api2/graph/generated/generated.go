@@ -49,13 +49,15 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateTodo func(childComplexity int, input model.NewTodo) int
+		CreateTodo   func(childComplexity int, input model.NewTodo) int
+		JobToTaskMut func(childComplexity int, arg1 int, arg2 model.Arg2) int
 	}
 
 	Query struct {
-		Jobs  func(childComplexity int) int
-		Tasks func(childComplexity int) int
-		Todos func(childComplexity int) int
+		JobToTaskQuery func(childComplexity int, arg1 int, arg2 *model.Arg2) int
+		Jobs           func(childComplexity int) int
+		Tasks          func(childComplexity int) int
+		Todos          func(childComplexity int) int
 	}
 
 	Task struct {
@@ -78,11 +80,13 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
+	JobToTaskMut(ctx context.Context, arg1 int, arg2 model.Arg2) (*model.Task, error)
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]*model.Todo, error)
 	Jobs(ctx context.Context) ([]*model.Job, error)
 	Tasks(ctx context.Context) ([]*model.Task, error)
+	JobToTaskQuery(ctx context.Context, arg1 int, arg2 *model.Arg2) (*model.Task, error)
 }
 
 type executableSchema struct {
@@ -125,6 +129,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateTodo(childComplexity, args["input"].(model.NewTodo)), true
+
+	case "Mutation.job_to_task_mut":
+		if e.complexity.Mutation.JobToTaskMut == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_job_to_task_mut_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.JobToTaskMut(childComplexity, args["arg1"].(int), args["arg2"].(model.Arg2)), true
+
+	case "Query.job_to_task_query":
+		if e.complexity.Query.JobToTaskQuery == nil {
+			break
+		}
+
+		args, err := ec.field_Query_job_to_task_query_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.JobToTaskQuery(childComplexity, args["arg1"].(int), args["arg2"].(*model.Arg2)), true
 
 	case "Query.jobs":
 		if e.complexity.Query.Jobs == nil {
@@ -293,19 +321,26 @@ type Task {
   name: String!
 }
 
-type Query {
-  todos: [Todo!]!
-  jobs: [Job]
-  tasks: [Task!]!
-}
-
 input NewTodo {
   text: String!
   userId: String!
 }
 
+input Arg2 {
+  id: Int!
+  name: String!
+}
+
+type Query {
+  todos: [Todo!]!
+  jobs: [Job]
+  tasks: [Task!]!
+  job_to_task_query(arg1: Int!, arg2: Arg2): Task!
+}
+
 type Mutation {
   createTodo(input: NewTodo!): Todo!
+  job_to_task_mut(arg1: Int!, arg2: Arg2!): Task!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -328,6 +363,28 @@ func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_job_to_task_mut_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["arg1"]; ok {
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["arg1"] = arg0
+	var arg1 model.Arg2
+	if tmp, ok := rawArgs["arg2"]; ok {
+		arg1, err = ec.unmarshalNArg22gotestsᚋtestsᚋgrapghlᚋapi2ᚋgraphᚋmodelᚐArg2(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["arg2"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -339,6 +396,28 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_job_to_task_query_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["arg1"]; ok {
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["arg1"] = arg0
+	var arg1 *model.Arg2
+	if tmp, ok := rawArgs["arg2"]; ok {
+		arg1, err = ec.unmarshalOArg22ᚖgotestsᚋtestsᚋgrapghlᚋapi2ᚋgraphᚋmodelᚐArg2(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["arg2"] = arg1
 	return args, nil
 }
 
@@ -481,6 +560,47 @@ func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field grap
 	return ec.marshalNTodo2ᚖgotestsᚋtestsᚋgrapghlᚋapi2ᚋgraphᚋmodelᚐTodo(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_job_to_task_mut(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_job_to_task_mut_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().JobToTaskMut(rctx, args["arg1"].(int), args["arg2"].(model.Arg2))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Task)
+	fc.Result = res
+	return ec.marshalNTask2ᚖgotestsᚋtestsᚋgrapghlᚋapi2ᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -578,6 +698,47 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	res := resTmp.([]*model.Task)
 	fc.Result = res
 	return ec.marshalNTask2ᚕᚖgotestsᚋtestsᚋgrapghlᚋapi2ᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_job_to_task_query(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_job_to_task_query_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().JobToTaskQuery(rctx, args["arg1"].(int), args["arg2"].(*model.Arg2))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Task)
+	fc.Result = res
+	return ec.marshalNTask2ᚖgotestsᚋtestsᚋgrapghlᚋapi2ᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1976,6 +2137,30 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputArg2(ctx context.Context, obj interface{}) (model.Arg2, error) {
+	var it model.Arg2
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewTodo(ctx context.Context, obj interface{}) (model.NewTodo, error) {
 	var it model.NewTodo
 	var asMap = obj.(map[string]interface{})
@@ -2054,6 +2239,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "job_to_task_mut":
+			out.Values[i] = ec._Mutation_job_to_task_mut(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2114,6 +2304,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_tasks(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "job_to_task_query":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_job_to_task_query(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2484,6 +2688,10 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) unmarshalNArg22gotestsᚋtestsᚋgrapghlᚋapi2ᚋgraphᚋmodelᚐArg2(ctx context.Context, v interface{}) (model.Arg2, error) {
+	return ec.unmarshalInputArg2(ctx, v)
+}
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
@@ -2885,6 +3093,18 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalOArg22gotestsᚋtestsᚋgrapghlᚋapi2ᚋgraphᚋmodelᚐArg2(ctx context.Context, v interface{}) (model.Arg2, error) {
+	return ec.unmarshalInputArg2(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOArg22ᚖgotestsᚋtestsᚋgrapghlᚋapi2ᚋgraphᚋmodelᚐArg2(ctx context.Context, v interface{}) (*model.Arg2, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOArg22gotestsᚋtestsᚋgrapghlᚋapi2ᚋgraphᚋmodelᚐArg2(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

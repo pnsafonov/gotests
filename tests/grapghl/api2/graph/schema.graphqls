@@ -24,17 +24,24 @@ type Task {
   name: String!
 }
 
-type Query {
-  todos: [Todo!]!
-  jobs: [Job]
-  tasks: [Task!]!
-}
-
 input NewTodo {
   text: String!
   userId: String!
 }
 
+input Arg2 {
+  id: Int!
+  name: String!
+}
+
+type Query {
+  todos: [Todo!]!
+  jobs: [Job]
+  tasks: [Task!]!
+  job_to_task_query(arg1: Int!, arg2: Arg2): Task!
+}
+
 type Mutation {
   createTodo(input: NewTodo!): Todo!
+  job_to_task_mut(arg1: Int!, arg2: Arg2!): Task!
 }

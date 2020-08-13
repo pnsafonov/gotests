@@ -29,3 +29,19 @@ func (r *Resolver) Jobs(ctx context.Context) (result []*model.Job, err error) {
     }
     return result, nil
 }
+
+func (r *Resolver) JobToTaskQuery(ctx context.Context, arg1 int, arg2 *model.Arg2) (task *model.Task, err error) {
+    task = &model.Task{
+        ID:   5555,
+        Name: "JobToTaskQuery",
+    }
+    return
+}
+
+func (r *Resolver) JobToTaskMut(ctx context.Context, arg1 int, arg2 model.Arg2) (task *model.Task, err error) {
+    task = &model.Task{
+        ID:   5555,
+        Name: "JobToTaskMut",
+    }
+    return
+}

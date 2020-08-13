@@ -2,6 +2,11 @@
 
 package model
 
+type Arg2 struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 type Job struct {
 	ID   *int    `json:"id"`
 	Name *string `json:"name"`
