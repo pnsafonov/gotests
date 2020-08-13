@@ -15,6 +15,15 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+	fmt.Println("todoss")
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) Jobs(ctx context.Context) ([]*model.Job, error) {
+	return r.Resolver.Jobs(ctx)
+}
+
+func (r *queryResolver) Tasks(ctx context.Context) ([]*model.Task, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

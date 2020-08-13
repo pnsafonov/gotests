@@ -2,9 +2,19 @@
 
 package model
 
+type Job struct {
+	ID   *int    `json:"id"`
+	Name *string `json:"name"`
+}
+
 type NewTodo struct {
 	Text   string `json:"text"`
 	UserID string `json:"userId"`
+}
+
+type Task struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 type Todo struct {

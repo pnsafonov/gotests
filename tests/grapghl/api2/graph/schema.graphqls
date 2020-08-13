@@ -14,8 +14,20 @@ type User {
   name: String!
 }
 
+type Job {
+  id: Int
+  name: String
+}
+
+type Task {
+  id: Int!
+  name: String!
+}
+
 type Query {
   todos: [Todo!]!
+  jobs: [Job]
+  tasks: [Task!]!
 }
 
 input NewTodo {
